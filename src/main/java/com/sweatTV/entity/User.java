@@ -5,7 +5,9 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -14,6 +16,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "users")
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class User {
@@ -35,6 +38,7 @@ public class User {
     @Column(nullable = false)
     private String password;
 
+    @CreationTimestamp
     private LocalDateTime createdAt;
 
     @Column(unique = true)

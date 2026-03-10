@@ -17,7 +17,7 @@ public class UserDTO {
     @NotBlank(message = "Email should be valid")
     private String email;
 
-    private Set<String> roles;
+    private String roles;
 
     private Set<Long> favoriteMovieId;
 }

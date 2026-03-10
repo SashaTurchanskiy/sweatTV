@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -36,11 +37,17 @@ public class User {
 
     private LocalDateTime createdAt;
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @Column(unique = true)
+    public String verificationToken;
+
+    @Column
+    private Instant verificationTokenExpiry;
+
+    //@ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
     @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "role")
-    private Set<Role> roles = new HashSet<>();
+    private Role roles = Role.ROLE_USER;
 
     @ManyToMany
     @JoinTable(

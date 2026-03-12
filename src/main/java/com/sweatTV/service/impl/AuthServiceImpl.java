@@ -9,6 +9,7 @@ import com.sweatTV.entity.enums.Role;
 import com.sweatTV.mapper.UserMapper;
 import com.sweatTV.repository.UserRepository;
 import com.sweatTV.service.AuthService;
+import com.sweatTV.service.EmailService;
 import com.sweatTV.utils.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,6 +25,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
     private final UserMapper userMapper;
+    private final EmailService emailService;
 
     @Override
     public MessageResponse registerUser(RegisterUserRequest request) {
@@ -31,13 +33,15 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("Email already exists");
         }
 
+        String tempPassword = request.getPassword();
+
         User user = userMapper.toEntity(request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRoles(Role.ROLE_USER);
 
         User savedUser = userRepository.save(user);
-
-        return new MessageResponse("User registered successfully");
+        emailService.sendWelcomeEmail(user.getEmail(), user.getUsername(), tempPassword);
+        return new MessageResponse("User registered successfully, check your email for the next options");
     }
 
     @Override

@@ -41,7 +41,7 @@ public class User {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    @Column(unique = true)
+    @Column(name = "verification_token", length = 512)
     public String verificationToken;
 
     @Column

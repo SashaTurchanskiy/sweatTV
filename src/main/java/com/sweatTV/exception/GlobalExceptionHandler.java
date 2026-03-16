@@ -19,4 +19,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(new MessageResponse("Email updated. Please login again with new email."));
     }
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<MessageResponse> handleCredentialsException(BadCredentialsException ex){
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new MessageResponse("Email is not verified. Please verify your email before logging in."));
+    }
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<MessageResponse> handleTokenException(InvalidTokenException ex){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new MessageResponse("Verification link has expired. Please request a new one"));
+    }
 }

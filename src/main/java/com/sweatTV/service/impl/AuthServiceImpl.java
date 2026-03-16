@@ -6,19 +6,24 @@ import com.sweatTV.dto.response.AuthResponse;
 import com.sweatTV.dto.response.MessageResponse;
 import com.sweatTV.entity.User;
 import com.sweatTV.entity.enums.Role;
+import com.sweatTV.exception.BadCredentialsException;
+import com.sweatTV.exception.InvalidTokenException;
 import com.sweatTV.mapper.UserMapper;
 import com.sweatTV.repository.UserRepository;
 import com.sweatTV.service.AuthService;
 import com.sweatTV.service.EmailService;
 import com.sweatTV.utils.JwtUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
@@ -35,12 +40,22 @@ public class AuthServiceImpl implements AuthService {
 
         String tempPassword = request.getPassword();
 
-        User user = userMapper.toEntity(request);
+        User user = new User();
+        user.setUsername(request.getUsername());
+        user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setEmailVerified(false);
+        String verificationToken = UUID.randomUUID().toString();
+        user.setVerificationToken(verificationToken);
+        user.setVerificationTokenExpiry(Instant.now().plusSeconds(86400));
         user.setRoles(Role.ROLE_USER);
 
+        log.info("Saving user: username={}, email={}, password={}",
+                user.getUsername(), user.getEmail(), user.getPassword());
+
+
         User savedUser = userRepository.save(user);
-        emailService.sendWelcomeEmail(user.getEmail(), user.getUsername(), tempPassword);
+        emailService.sendVerification(user.getEmail(), user.getUsername(), verificationToken);
         return new MessageResponse("User registered successfully, check your email for the next options");
     }
 
@@ -52,6 +67,9 @@ public class AuthServiceImpl implements AuthService {
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())){
             throw new RuntimeException("Invalid email or password");
         }
+        if (!user.isEmailVerified()){
+            throw new BadCredentialsException("Email is not verified. Please verify your email before logging in.");
+        }
 
         String accessToken = jwtUtils.generateToken(user.getEmail(), user.getRoles());
         user.setVerificationToken(accessToken);
@@ -60,4 +78,21 @@ public class AuthServiceImpl implements AuthService {
         User savedUser = userRepository.save(user);
         return new AuthResponse(accessToken);
     }
+
+    @Override
+    public MessageResponse verifyEmail(String token) {
+        User user = userRepository.findByVerificationToken(token)
+                .orElseThrow(()-> new InvalidTokenException("Invalid or expired verification token"));
+
+        if (user.getVerificationTokenExpiry() == null || user.getVerificationTokenExpiry().isBefore(Instant.now())){
+            throw new InvalidTokenException("Verification link has expired. Please request a new one");
+        }
+
+        user.setEmailVerified(true);
+        user.setVerificationToken(null);
+        user.setVerificationTokenExpiry(null);
+        userRepository.save(user);
+        return new MessageResponse("Email verified successfully! You can login now");
+    }
+
 }

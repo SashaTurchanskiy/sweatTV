@@ -47,6 +47,9 @@ public class User {
     @Column
     private Instant verificationTokenExpiry;
 
+    @Column(nullable = false)
+    private boolean emailVerified = false;
+
     //@ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
     @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))

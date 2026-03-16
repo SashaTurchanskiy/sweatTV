@@ -26,21 +26,20 @@ public class EmailServiceImpl implements EmailService {
     private String fromEmail;
 
     @Override
-    public void sendCredentials(String toEmail, String username, String password) {
+    public void sendVerification(String toEmail, String username, String token) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(fromEmail);
             message.setTo(toEmail);
-            message.setSubject("SweatTv - your temporary password");
-            String emailBody = "Hi " + username + ",\n\n"
-                    + "We received a request to reset your password. Here is your temporary password:\n\n"
-                    + "Temporary Password: " + password + "\n\n"
-                    + "Please use this temporary password to log in to your account.\n\n"
-                    + "IMPORTANT: For security reasons, please change your password immediately after logging in.\n\n"
-                    + "You can log in at: " + frontendUrl + "/login\n\n"
-                    + "If you didn't request a password reset, please contact our support team immediately.\n\n"
+            message.setSubject("Email Verification - SweatTV");
+
+            String verificationLink = frontendUrl + "/verify-email?token=" + token;
+            String emailBody = "Dear User,\n\n"
+                    + "Thank you for registering on SweatTV! Please click the link below to verify your email address:\n"
+                    + verificationLink + "\n\n"
+                    + "If you did not sign up for this account, please ignore this email.\n\n"
                     + "Best regards,\n"
-                    + "SweatTv Team";
+                    + "SweatTV  Team";
 
             message.setText(emailBody);
             mailSender.send(message);

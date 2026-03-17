@@ -53,32 +53,27 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public void sendWelcomeEmail(String toEmail, String username, String password) {
+    public void sendPasswordResetEmail(String toEmail, String token) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(fromEmail);
             message.setTo(toEmail);
-            message.setSubject("Welcome to SweatTv - your account is ready");
+            message.setSubject("Password Reset - SweatTv");
 
-            String emailBody =
-                    "Hi " + username + ",\n\n"
-                            + "Welcome to Sweat! Your account has been successfully created.\n\n"
-                            + "Here are your login credentials:\n\n"
-                            + "Email: " + toEmail + "\n"
-                            + "Temporary Password: " + password + "\n\n"
-                            + "You can log in at: " + frontendUrl + "/login\n"
-                            + "*IMPORTANT: For security reasons, please change your password immediately after logging in.\n\n"
-                            + "Start exploring and enjoying your favorite music!\n\n"
-                            + "Best regards,\n"
-                            + "SweatTv Team";
+            String resetLink = frontendUrl + "/reset-password?token=" + token;
+            String emailBody = "Dear User,\n\n"
+                    + "We received a request to reset your password. Please click the link below to reset your password:\n"
+                    + resetLink + "\n\n"
+                    + "If you did not request a password reset, please ignore this email.\n\n"
+                    + "Best regards,\n"
+                    + "SweatTv Team";
 
             message.setText(emailBody);
             mailSender.send(message);
-
-            logger.info("Welcome email sent to {}", toEmail);
+            logger.info("Password reset email sent to {}", toEmail);
         }catch (Exception ex){
-            logger.error("Failed to send welcome email to {}: {}", toEmail, ex.getMessage(), ex);
-            throw new RuntimeException("Failed to send welcome email");
+            logger.error("Failed to send password reset email to {}: {}", toEmail, ex.getMessage(), ex);
+            throw new RuntimeException("Failed to send password reset email. Please try again later");
         }
 
     }

@@ -1,7 +1,9 @@
 package com.sweatTV.controller;
 
+import com.sweatTV.dto.request.EmailRequest;
 import com.sweatTV.dto.request.LoginRequest;
 import com.sweatTV.dto.request.RegisterUserRequest;
+import com.sweatTV.dto.request.ResetPasswordRequest;
 import com.sweatTV.dto.response.AuthResponse;
 import com.sweatTV.dto.response.MessageResponse;
 import com.sweatTV.entity.User;
@@ -32,5 +34,13 @@ public class AuthController {
     @GetMapping("/verify-email")
     public ResponseEntity<MessageResponse> verifyEmail(@RequestParam String token){
         return ResponseEntity.ok(authService.verifyEmail(token));
+    }
+    @PostMapping("/forgot-password")
+    public ResponseEntity<MessageResponse> forgotPassword(@Valid @RequestBody EmailRequest request){
+        return ResponseEntity.ok(authService.forgotPassword(request.getEmail()));
+    }
+    @PostMapping("/reset-password")
+    public ResponseEntity<MessageResponse> resetPassword(@Valid @RequestBody ResetPasswordRequest request){
+        return ResponseEntity.ok(authService.resetPassword(request.getToken(), request.getNewPassword()));
     }
 }

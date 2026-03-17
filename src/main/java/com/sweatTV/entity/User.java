@@ -38,6 +38,12 @@ public class User {
     @Column(nullable = false)
     private String password;
 
+    @Column
+    private String passwordResetToken;
+
+    @Column
+    private Instant passwordResetTokenExpiry;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 

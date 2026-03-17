@@ -4,7 +4,6 @@ import com.sweatTV.dto.request.LoginRequest;
 import com.sweatTV.dto.request.RegisterUserRequest;
 import com.sweatTV.dto.response.AuthResponse;
 import com.sweatTV.dto.response.MessageResponse;
-import org.jspecify.annotations.Nullable;
 
 public interface AuthService {
 
@@ -13,4 +12,8 @@ public interface AuthService {
     AuthResponse loginUser(LoginRequest request);
 
     MessageResponse verifyEmail(String token);
+
+    MessageResponse forgotPassword(String email);
+
+    MessageResponse resetPassword(String token, String newPassword);
 }

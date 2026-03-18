@@ -7,6 +7,7 @@ import com.sweatTV.dto.response.MessageResponse;
 import com.sweatTV.entity.User;
 import com.sweatTV.entity.enums.Role;
 import com.sweatTV.exception.BadCredentialsException;
+import com.sweatTV.exception.InvalidCredentialsException;
 import com.sweatTV.exception.InvalidTokenException;
 import com.sweatTV.mapper.UserMapper;
 import com.sweatTV.repository.UserRepository;
@@ -124,6 +125,19 @@ public class AuthServiceImpl implements AuthService {
         userRepository.save(user);
 
         return new MessageResponse("Password successfully reset. You can login with your new password now");
+    }
+
+    @Override
+    public MessageResponse changePassword(String email, String currentPassword, String newPassword) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(()-> new RuntimeException("Email is incorrect"));
+
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())){
+            throw new InvalidCredentialsException("Current password is incorrect");
+        }
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        return new MessageResponse("Password changed successfully");
     }
 
 }

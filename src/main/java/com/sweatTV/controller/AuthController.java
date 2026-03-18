@@ -1,9 +1,6 @@
 package com.sweatTV.controller;
 
-import com.sweatTV.dto.request.EmailRequest;
-import com.sweatTV.dto.request.LoginRequest;
-import com.sweatTV.dto.request.RegisterUserRequest;
-import com.sweatTV.dto.request.ResetPasswordRequest;
+import com.sweatTV.dto.request.*;
 import com.sweatTV.dto.response.AuthResponse;
 import com.sweatTV.dto.response.MessageResponse;
 import com.sweatTV.entity.User;
@@ -12,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -42,5 +40,12 @@ public class AuthController {
     @PostMapping("/reset-password")
     public ResponseEntity<MessageResponse> resetPassword(@Valid @RequestBody ResetPasswordRequest request){
         return ResponseEntity.ok(authService.resetPassword(request.getToken(), request.getNewPassword()));
+    }
+    //todo change password
+    @PostMapping("/change-password")
+    public ResponseEntity<MessageResponse> changePassword(Authentication authentication,
+                                                          @Valid @RequestBody ChangePasswordRequest request){
+        String email = authentication.getName();
+        return ResponseEntity.ok(authService.changePassword(email, request.getCurrentPassword(), request.getNewPassword()));
     }
 }

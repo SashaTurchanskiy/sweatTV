@@ -16,4 +16,6 @@ public interface AuthService {
     MessageResponse forgotPassword(String email);
 
     MessageResponse resetPassword(String token, String newPassword);
+
+    MessageResponse changePassword(String email, String currentPassword, String newPassword);
 }

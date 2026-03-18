@@ -29,4 +29,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new MessageResponse("Verification link has expired. Please request a new one"));
     }
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<MessageResponse> handleCredentialsException(InvalidCredentialsException ex){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new MessageResponse("User not found with email: \" + email"));
+    }
 }

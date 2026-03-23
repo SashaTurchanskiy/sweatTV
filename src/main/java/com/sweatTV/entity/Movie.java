@@ -6,9 +6,11 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,29 +18,32 @@ import java.util.Set;
 @Table(name = "movies")
 @AllArgsConstructor
 @NoArgsConstructor
+@Data
 public class Movie {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Title cannot be blank")
     @Column(nullable = false)
     private String title;
 
-    @Size(max = 500, message = "Description cannot exceed 500 characters")
+    @Column(columnDefinition = "TEXT") // Дозволяє довгий опис
     private String description;
 
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Genre genre;
+    private String videoUrl; // Посилання на файл фільму
 
-    @NotBlank(message = "Movie URL cannot be blank")
-    private String movieUrl;
+    private String coverUrl; // Посилання на картинку (постер)
 
-    @NotNull(message = "Release date cannot be null")
-    private LocalDate releaseDate;
+    private Integer releaseYear; // Рік випуску
 
-    @ManyToMany(mappedBy = "favoriteMovies")
-    private Set<User> users = new HashSet<>();
+    private Integer durationMinutes; // Тривалість
+
+    // Дата додавання на сайт (корисно для сортування "Новинки")
+    @Column(name = "created_at")
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+
+    
 }

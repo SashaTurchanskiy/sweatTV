@@ -2,8 +2,7 @@ package com.sweatTV.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -12,6 +11,8 @@ import java.util.Set;
 @Table(name = "playlists")
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 public class Playlist {
 
     @Id
@@ -21,8 +22,8 @@ public class Playlist {
     @NotBlank(message = "Playlist name cannot be blank")
     private String name;
 
-    //Playlist owner
-    @ManyToOne
+    //Owner of the playlist
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User owner;
 
@@ -34,11 +35,22 @@ public class Playlist {
             inverseJoinColumns = @JoinColumn(name = "movie_id"))
     private Set<Movie> movies = new HashSet<>();
 
+    public void addMovie(Movie movie){
+        this.movies.add(movie);
+    }
+
+    public void removeMovie(Movie movie){
+        this.movies.remove(movie);
+    }
+
+
+
+
     //Channels in the playlist
-    @ManyToMany
+   /* @ManyToMany
     @JoinTable(
             name = "playlist_channels",
             joinColumns = @JoinColumn(name = "playlist_id"),
             inverseJoinColumns = @JoinColumn(name = "channel_id"))
-    private Set<Channel> channels = new HashSet<>();
+    private Set<Channel> channels = new HashSet<>();*/
 }

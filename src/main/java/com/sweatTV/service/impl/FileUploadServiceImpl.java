@@ -56,12 +56,52 @@ public class FileUploadServiceImpl implements FileUploadService {
 
     @Override
     public ResponseEntity<Resource> serveVideo(String uuid, String rangeHeader) {
-        return null;
+        try {
+            Path filePath = FileHandlerUtil.findFileByUuid(videoStorageLocation, uuid);
+            Resource resource = FileHandlerUtil.createFullResource(filePath);
+
+            String filename = resource.getFilename();
+            String contentType = FileHandlerUtil.detectVideoContentType(filename);
+            long fileLength = resource.contentLength();
+
+            if (isFullContentRequest(rangeHeader)){
+                return buildFullVideoResponse(resource, contentType, filename, fileLength);
+            }
+                return buildPartialVideoResponse(filePath, rangeHeader, contentType, filename, fileLength);
+        }catch (Exception ex){
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @Override
     public ResponseEntity<Resource> serveImage(String uuid) {
-        return null;
+        try {
+            Path filePath = FileHandlerUtil.findFileByUuid(imageStorageLocation, uuid);
+            Resource resource = FileHandlerUtil.createFullResource(filePath);
+
+            String filename = resource.getFilename();
+            String contentType = FileHandlerUtil.detectImageContentType(filename);
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline, filename=\"" + filename + "\"")
+                    .body(resource);
+        }catch (Exception ex){
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    private boolean isFullContentRequest(String rangeHeader) {
+        return rangeHeader == null || rangeHeader.isEmpty();
+    }
+
+    private ResponseEntity<Resource> buildFullVideoResponse(Resource resource, String contentType, String filename, long fileLength) {
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline, filename=\"" + filename + "\"")
+                .header(HttpHeaders.ACCEPT_RANGES, "bytes")
+                .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(fileLength))
+                .body(resource);
     }
 
     private ResponseEntity<Resource> buildPartialVideoResponse(Path filePath, String rangeHeader, String contentType, String filename, long fileLength) throws IOException {

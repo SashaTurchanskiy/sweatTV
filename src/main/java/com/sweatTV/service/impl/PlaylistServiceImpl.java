@@ -14,6 +14,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class PlaylistServiceImpl implements PlaylistService {
@@ -25,12 +28,12 @@ public class PlaylistServiceImpl implements PlaylistService {
 
 
     @Override
-    public PlaylistDTO createPlaylist(String name, String username) {
-        User user = userRepository.findByUsername(username)
+    public PlaylistDTO createPlaylist(String playlistName, String userEmail) {
+        User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         Playlist playlist = new Playlist();
-        playlist.setName(name);
+        playlist.setName(playlistName);
         playlist.setOwner(user);
 
         Playlist savedPlaylist = playlistRepository.save(playlist);
@@ -85,11 +88,24 @@ public class PlaylistServiceImpl implements PlaylistService {
 
     }
 
-    private Playlist getPlaylistAndCheckOwner(Long playlistId, String username){
+    @Override
+    public PlaylistDTO getPlaylistById(Long playlistId, String username) {
+        Playlist playlist = getPlaylistAndCheckOwner(playlistId, username);
+        return playlistMapper.toDto(playlist);
+    }
+
+    @Override
+    public List<PlaylistDTO> getAllPlaylistsForUser(String email) {
+        return playlistRepository.findByOwnerEmail(email).stream()
+                .map(playlistMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    private Playlist getPlaylistAndCheckOwner(Long playlistId, String userEmail){
         Playlist playlist = playlistRepository.findById(playlistId)
                 .orElseThrow(()-> new RuntimeException("Playlist not found"));
 
-        if (!playlist.getOwner().getUsername().equals(username)){
+        if (!playlist.getOwner().getEmail().equals(userEmail)){
             throw new RuntimeException("Access denied: you are not the owner of this playlist");
         }
         return playlist;

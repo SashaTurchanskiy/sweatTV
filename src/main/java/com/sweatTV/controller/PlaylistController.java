@@ -9,6 +9,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/playlists")
@@ -43,10 +44,15 @@ public class PlaylistController {
         playlistService.removeMovieFromPlaylist(playlistId, movieId, principal.getName());
         return ResponseEntity.ok().build();
     }
-    @DeleteMapping("{/playlistId}")
+    @DeleteMapping("/{playlistId}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> deletePlaylist(@PathVariable Long playlistId, Principal principal){
         playlistService.deletePlaylist(playlistId, principal.getName());
         return ResponseEntity.ok().build();
+    }
+    @GetMapping("/all")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<PlaylistDTO>> getAllPlaylists(Principal principal){
+       return ResponseEntity.ok(playlistService.getAllPlaylistsForUser(principal.getName()));
     }
 }

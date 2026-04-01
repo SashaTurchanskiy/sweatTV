@@ -9,6 +9,8 @@ import java.time.LocalDateTime;
 @Data
 public class MovieDTO {
 
+
+    @NotBlank(message = "Title is required")
     private String title;
     private String description;
     private String videoUrl;

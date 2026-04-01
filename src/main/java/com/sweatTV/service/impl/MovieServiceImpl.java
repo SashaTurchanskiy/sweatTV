@@ -8,10 +8,14 @@ import com.sweatTV.service.MovieService;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MovieServiceImpl implements MovieService {
 
     private final MovieRepository movieRepository;
@@ -19,11 +23,14 @@ public class MovieServiceImpl implements MovieService {
 
     @Override
     public MovieDTO uploadMovie(MovieDTO movieDTO) {
+        log.info("Attempting to upload movie: {}", movieDTO.getTitle());
         //Map Dto to entity
         Movie movie = movieMapper.toEntity(movieDTO);
 
+        log.info("Movie entity before save: title={}, videoUrl={}", movie.getTitle(), movie.getVideoUrl());
         //saved in database
         Movie savedMovie = movieRepository.save(movie);
+        log.info("Movie saved successfully with id : {}", savedMovie.getId());
 
         //Map entity to Dto
         return movieMapper.toDto(savedMovie);
@@ -56,5 +63,10 @@ public class MovieServiceImpl implements MovieService {
         }
         movieRepository.deleteById(id);
 
+    }
+
+    @Override
+    public List<MovieDTO> getAllMovies() {
+        return List.of();
     }
 }

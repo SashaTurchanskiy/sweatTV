@@ -2,6 +2,7 @@ package com.sweatTV.controller;
 
 import com.sweatTV.dto.MovieDTO;
 import com.sweatTV.service.MovieService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +22,7 @@ public class MovieController {
     }
     @PostMapping("/add")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<MovieDTO> uploadMovie(@RequestBody MovieDTO movieDTO){
+    public ResponseEntity<MovieDTO> uploadMovie(@Valid @RequestBody MovieDTO movieDTO){
         return new ResponseEntity<>(movieService.uploadMovie(movieDTO), HttpStatus.CREATED);
     }
     @PutMapping("/update/{id}")

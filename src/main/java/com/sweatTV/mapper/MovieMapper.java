@@ -2,22 +2,22 @@ package com.sweatTV.mapper;
 
 import com.sweatTV.dto.MovieDTO;
 import com.sweatTV.entity.Movie;
-import org.mapstruct.BeanMapping;
-import org.mapstruct.Mapper;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.*;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring") // Обов'язково для Spring Injection
 public interface MovieMapper {
 
+    // Мапимо Entity в DTO (для GET запитів)
     MovieDTO toDto(Movie movie);
+
+    // Мапимо DTO в Entity (для POST запитів)
+    @Mapping(target = "id", ignore = true) // Ігноруємо ID при створенні, щоб Hibernate сам його згенерував
+    @Mapping(target = "createdAt", ignore = true) // Ігноруємо дату створення, вона сетається автоматично в Entity
     Movie toEntity(MovieDTO movieDTO);
 
-    @BeanMapping(nullValuePropertyMappingStrategy =  NullValuePropertyMappingStrategy.IGNORE)
+    // Метод для оновлення існуючого об'єкта (PUT запити)
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateMovieFromDto(MovieDTO movieDTO, @MappingTarget Movie movie);
-
-    /*List<MovieDTO> toDtoList(List<Movie> movies);
-    List<Movie> toEntity(List<MovieDTO> dtos);*/
 }
